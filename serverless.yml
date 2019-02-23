@@ -1,5 +1,5 @@
 service: pufouniversity
- 
+
 provider:
   name: aws
   runtime: nodejs8.10
@@ -9,11 +9,27 @@ provider:
 custom:
   defaultRegion: eu-west-1
   stage: ${opt:stage, self:provider.stage}
- 
+  mastersTable: masters-${self:custom.stage}
+
 functions:
-  initialTest:
-    handler: src/functions/initialTest.handler
+  getMasters:
+    handler: src/functions/getMasters.handler
     events:
       - http:
-          path: api/initialTest/{name}
+          path: api/masters
           method: get
+
+
+resources:
+  Resources:
+    MastersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.mastersTable}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
